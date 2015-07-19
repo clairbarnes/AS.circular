@@ -1,0 +1,8 @@
+Package: AS.angles
+Title: ArchStats: extracting angles from x,y coordinates
+Version: 0.0.0.9000
+Authors@R: person("Clair", "Barnes", email = "clair.with.no.e@gmail.com", role = c("aut", "cre"))
+Description: Functions to extract and display the angles between points defined by their x,y coordinates.
+Depends: R (>= 3.2.0), circular, FNN
+License: What license is it under?
+LazyData: true

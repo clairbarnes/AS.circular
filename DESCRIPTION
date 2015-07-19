@@ -1,0 +1,8 @@
+Package: AS.circular
+Title: ArchStats: circular functions
+Version: 0.0.0.9000
+Authors@R: person("Clair", "Barnes", email = "clair.with.no.e@gmail.com", role = c("aut", "cre"))
+Description: Circular functions based on 'Circular Statistics in R' by Pewsey et al
+Depends: R (>= 3.2.0), circular
+License: What license is it under?
+LazyData: true
