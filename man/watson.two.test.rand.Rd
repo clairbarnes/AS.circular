@@ -4,7 +4,7 @@
 \alias{watson.two.test.rand}
 \title{Permutation test for common distribution between two samples}
 \usage{
-watson.two.test.rand(data1, data2, NR = 9999)
+watson.two.test.rand(data1, data2, NR = 9999, show.progress = T)
 }
 \arguments{
 \item{data1}{First vector of angles to be tested.}
@@ -12,6 +12,8 @@ watson.two.test.rand(data1, data2, NR = 9999)
 \item{data2}{Second vector of angles to be tested.}
 
 \item{NR}{Number of permutation samples to use to estimate the p-value. Default is 9999.}
+
+\item{show.progress}{Boolean indicating whether or not to display a progress bar as the bootstrap is run.}
 }
 \value{
 List containing the observed value of the test statistic and the p-value.
