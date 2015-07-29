@@ -107,7 +107,7 @@ JP.qf <- function(u, mu, kappa, psi) {
     else {
         roottol <- .Machine$double.eps**(0.6)
         qzero <- function(x) {
-            y <- JP.df(x, mu, kappa, psi, ncon) - u ; return(y) }
+            y <- JP.df(x, mu, kappa, psi) - u ; return(y) }
         res <- uniroot(qzero, lower=0, upper=2*pi-eps, tol=roottol)
         theta <- res$root ; return(theta) }
 }
