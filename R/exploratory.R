@@ -332,3 +332,93 @@ uniformity.plot <- function(data, extend = F) {
     plot(x, y, pch = 20, asp = T, xlab = "Uniform quantiles", ylab = "Sample quantiles")
     abline(a = 0, b = 1, col = "lightseagreen")
 }
+
+
+#' Linear plot of circular data
+#'
+#' Produces a linear histogram of a circular data set, with kernel density (black), ML von Mises (blue) and ML Jones-Pewsey (red) distributions overlaid.
+#' @param data Vector of angles, in radians.
+#' @param bins Specify number of bars to display in histogram. Default is 90.
+#' @param BW Bandwidth to be used for the kernel density estiate. Default is 15.
+#' @param l.pos Position of legend. Leave blank to plot without a legend.
+#' @param l.size If legend is displayed, scale it by this factor. Default is 1.
+#' @export
+#' @examples
+#' linear.c.plot(q.4)
+linear.c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1) {
+    
+    # split data into bins
+    cuts <- c(0:bins) * 2 * pi/bins
+    b <- circular(((cuts[1:bins] + cuts[2:(bins + 1)]) / 2)[findInterval(data, cuts)])
+    
+    b.l <- matrix(b)
+    kd <- cbind(density.circular(data, bw = BW)$x, density.circular(data, bw = BW)$y)
+    
+    vm.mle <-  mle.vonmises(data, bias = T)
+    jp.mle <- JP.mle(data)
+    
+    ym <- max(hist(b.l, breaks = bins, plot = F)$density) * 1.1    
+    
+    hist(b.l, breaks = bins, freq = F, ylim = c(0, ym), col = "grey", border = "darkgrey", main = "", xlab = "", xaxt = "none")
+    axis(1, at = c(0, 0.5, 1, 1.5, 2) * pi,
+         labels = c(0, expression(paste(pi, "/2")), expression(paste(pi)),
+                    expression(paste("3", pi, "/2")), expression(paste("2", pi))))
+    lines(kd, col = "black", lwd = 2)
+    suppressWarnings(curve(dvonmises(x, mu = vm.mle$mu %% (2*pi), kappa = vm.mle$kappa), n = 3600, add = T, lty = 2, col = "blue", lwd = 2))
+    suppressWarnings(curve(djonespewsey(x, mu = circular(jp.mle$mu), kappa = jp.mle$kappa, psi = jp.mle$psi), n = 3600, add = T, lty = 2, col = "red", lwd = 2))
+    
+    if (!missing(l.pos)) {
+        legend(l.pos, bty = "n", cex = l.size,
+               legend = c("Kernel density estimate", "von Mises distribution", "Jones-Pewsey distribution"),
+               col = c("Black", "Blue", "Red"),
+               lty = c(1, 2, 2),
+               lwd = 2)
+    }
+}
+
+
+#' Plot of circular data
+#'
+#' Produces a circular plot of a directional data set, with kernel density (black), ML von Mises (blue) and ML Jones-Pewsey (red) distributions overlaid. The legend is optional.
+#' @param data Vector of angles, in radians.
+#' @param bins Specify number of bars to display in histogram. Default is 90.
+#' @param BW Bandwidth to be used for the kernel density estiate. Default is 15.
+#' @param l.pos Position of legend. Leave blank to plot without a legend.
+#' @param l.size If legend is displayed, scale it by this factor. Default is 1.
+#' @param p.sep Separation of points in plot. Default is 0.05
+#' @param p.shrink Rescaling parameter of circular plot.
+#' @param xl \code{xlim} parameter to be passed to circular plot.
+#' @param yl \code{ylim} parameter to be passed to circular plot.
+#' @details See \code{\link{plot.circular}} for more on plotting parameters.
+#' @export
+#' @examples
+#' c.plot(q.4)
+c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1, p.sep = 0.05, p.shrink = 1.5, yl = c(-1.2,0.8), xl = c(-1.1,0.9)) {
+    
+    # split data into bins
+    cuts <- c(0:bins) * 2 * pi/bins
+    b <- circular(((cuts[1:bins] + cuts[2:(bins + 1)]) / 2)[findInterval(data, cuts)])
+    
+    summ <- bc.sample.statistics(data, symmetric = F)
+    vm.mle <-  mle.vonmises(data, bias = T)
+    jp.mle <- JP.mle(data)
+    
+    
+    
+    # plot data with densities
+    plot(b, stack = T, sep = p.sep, pch = 20, shrink = p.shrink, font = 3, ylim = yl, xlim = xl, bins = bins, col = "darkgrey")
+    Arrows(0,0, 1.2 * p.shrink * cos(summ$mu), 1.2 * p.shrink * sin(summ$mu), arr.type = "curved", lwd = 2)
+    lines(density.circular(data, bw = BW), lwd = 2)
+    suppressWarnings(curve.circular(dvonmises(x, mu = vm.mle$mu %% (2*pi), kappa = vm.mle$kappa), n = 3600, add = T, lty = 2, col = "blue", lwd = 2))
+    suppressWarnings(curve.circular(djonespewsey(x, mu = jp.mle$mu, kappa = jp.mle$kappa, psi = jp.mle$psi), n = 3600, add = T, lty = 2, col = "red", lwd = 2))
+    
+    if (!missing(l.pos)) {
+        legend(l.pos, bty = "n", cex = l.size,
+               legend = c("Kernel density estimate", "von Mises distribution", "Jones-Pewsey distribution"),
+               col = c("Black", "Blue", "Red"),
+               lty = c(1, 2, 2),
+               lwd = 2)
+    }
+}
+
+
