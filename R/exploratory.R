@@ -392,8 +392,8 @@ linear.c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1) {
 #' @details See \code{\link{plot.circular}} for more on plotting parameters.
 #' @export
 #' @examples
-#' c.plot(q.4)
-c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1, p.sep = 0.05, p.shrink = 1.5, yl = c(-1.2,0.8), xl = c(-1.1,0.9)) {
+#' circular.c.plot(q.4)
+circular.c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1, p.sep = 0.05, p.shrink = 1.5, yl = c(-1.2,0.8), xl = c(-1.1,0.9)) {
     
     # split data into bins
     cuts <- c(0:bins) * 2 * pi/bins
