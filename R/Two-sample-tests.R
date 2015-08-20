@@ -426,3 +426,67 @@ watson.two.test.rand <- function(data1, data2, NR = 9999, show.progress = T){
     if (show.progress) {close(pb)}
     list(observed = wats.obs, p.val = pval)
 }
+
+
+
+#' Calculate a pooled mean for two or more samples
+#'
+#' Based on Fisher's pooled estimate of a common mean for two or more samples of angular data.
+#' @param samples A list containing the vectors of angles (in radians) to be tested.
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95pc)
+#' @return List containing the observed value of the test statistic and the p-value.
+#' @export
+#' @examples
+#' m <- pooled.mean((list(q.4.a, q.4.b))
+pooled.mean <- function (samples, alpha = 0.05) {
+    data <- unlist(samples)
+    N <- length(data)
+    g <- length(samples)
+    sample.sizes <- 0
+    for (i in 1:g) {
+        sample.sizes[i] <- length(samples[[i]])
+    }
+    size.csum <- cumsum(sample.sizes)
+    delhat <- 0
+    tbar <- 0
+    Rbar1 <- 0
+    cse <- c()
+    v <- c()
+    for (k in 1:g) {
+        sample <- samples[[k]]
+        tm1 <- trigonometric.moment(sample, p = 1)
+        tm2 <- trigonometric.moment(sample, p = 2)
+        Rbar1[k] <- tm1$rho
+        Rbar2 <- tm2$rho
+        tbar[k] <- tm1$mu%%(2 * pi)
+        delhat[k] <- (1 - Rbar2)/(2 * Rbar1[k]^2)
+        cse[k] <- sqrt(delhat[k] / sample.sizes[k])
+        v[k] <- (Rbar1[k] * cse[k]^2)^(-1)
+    }
+    
+    dhatmax <- max(delhat)
+    dhatmin <- min(delhat)
+    if (dhatmax/dhatmin <= 4) {
+        w <- sample.sizes / N
+    }
+    else {
+        V <- sum(v)
+        w <- v/V
+    }
+    
+    Cw <- 0
+    Sw <- 0
+    Rw <- 0
+    se2 <- 0
+    for (k in 1:g) {
+        Cw <- Cw + (w[k] * Rbar1[k] * cos(tbar[k]))
+        Sw <- Sw + (w[k] * Rbar1[k] * sin(tbar[k]))
+        Rw <- Rw + (w[k] * Rbar1[k])
+    }
+    est <- atan2(x = Cw, y = Sw)
+    se <- sqrt(sum(w^2 * Rbar1^2 * cse^2 / Rw^2))
+    
+    qn <- qnorm(1-0.05/2)
+    CI.lim <- asin(qn * se)
+    list(est = est, pm = CI.lim)
+}

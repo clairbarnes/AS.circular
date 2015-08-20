@@ -594,6 +594,7 @@ JP.psi.info <- function(data, psi.0 = 0) {
     n <- length(x)
     s <- sum(sin(x)) 
     c <- sum(cos(x))
+    k <- c(2,3)
     mu.vM <- atan2(s,c) %% (2 * pi)
     kappa.vM <- A1inv(sqrt(s*s+c*c)/n)
     
@@ -650,7 +651,8 @@ JP.psi.info <- function(data, psi.0 = 0) {
                               kappa = c(kappa.vM, kaphat1),
                               psi = c(psi.0, psihat1),
                               AIC = c(AIC0, AIC1),
-                              BIC = c(BIC0, BIC1)),3)
+                              BIC = c(BIC0, BIC1),
+                              AICc = c(AIC0, AIC1) + (2*k*(k+1)) / (n-k-1)),3)
     colnames(comparison) <- c(null.model, "Jones-Pewsey")
     
     list(comparison = comparison, AIC = comment.AIC, BIC = comment.BIC)

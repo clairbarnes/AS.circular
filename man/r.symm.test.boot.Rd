@@ -4,14 +4,14 @@
 \alias{r.symm.test.boot}
 \title{Bootstrap reflective symmetry test}
 \usage{
-r.symm.test.boot(data, B = 9999, alpha = 0.05)
+r.symm.test.boot(data, B = 9999, alpha = 0.05, show.progress = T)
 }
 \arguments{
 \item{data}{Vector of angles.}
 
 \item{B}{Number of bootstrap samples to use to estimate the standard error of the p-value. Default is 9999.}
 
-\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).}
+\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95pc confidence interval).}
 
 \item{show.progress}{Boolean indicating whether or not to display a progress bar as the bootstrap is run.}
 }

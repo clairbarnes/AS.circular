@@ -101,8 +101,8 @@ bc.ci.LS <- function(data, alpha = 0.05, symmetric = F) {
     mu.bc <- ests$mu
     mu.SE <- sqrt((1-bar$a2)/div)
     
-    mu.upper <- mu.bc + qval * mu.SE
-    mu.lower <- mu.bc - qval * mu.SE
+    mu.upper <- (mu.bc + qval * mu.SE) %% (2*pi)
+    mu.lower <- (mu.bc - qval * mu.SE) %% (2*pi)
     
     mu <- c(estimate = mu.bc, lower = mu.lower, upper = mu.upper)
     
@@ -165,8 +165,8 @@ bc.ci.boot <- function(data, symmetric = F, alpha = 0.05, B = 9999, show.progres
         dist <- pi - abs(pi - abs(mu.est - mu.est[1]))        
         sdist <- sort(dist)
         
-        mu.lower <- mu.est[1] - sdist[(B+1)*(1-alpha)]
-        mu.upper <- mu.est[1] + sdist[(B+1)*(1-alpha)]
+        mu.lower <- (mu.est[1] - sdist[(B+1)*(1-alpha)]) %% (2*pi)
+        mu.upper <- (mu.est[1] + sdist[(B+1)*(1-alpha)]) %% (2*pi)
     } else {
         if (mu.est[1] < pi) {
             ref <- mu.est[1] + pi
@@ -245,7 +245,7 @@ r.symm.test.stat <- function(data) {
 #'
 #' Bootstrap test of reflective symmetry about an unspecified mean.
 #' @param data Vector of angles.
-#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95pc confidence interval).
 #' @param B Number of bootstrap samples to use to estimate the standard error of the p-value. Default is 9999.
 #' @param show.progress Boolean indicating whether or not to display a progress bar as the bootstrap is run.
 #' @return A list containing the p-value of the test and its standard error.
@@ -253,7 +253,7 @@ r.symm.test.stat <- function(data) {
 #' @export
 #' @examples
 #' reject.symmetry <- r.symm.test.boot(q)
-r.symm.test.boot <- function(data, B = 9999, alpha = 0.05) {
+r.symm.test.boot <- function(data, B = 9999, alpha = 0.05, show.progress = T) {
     
     n <- length(data)
     absz <- r.symm.test.stat(data)$test.statistic
@@ -359,7 +359,7 @@ linear.c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1) {
     
     ym <- max(hist(b.l, breaks = bins, plot = F)$density) * 1.1    
     
-    hist(b.l, breaks = bins, freq = F, ylim = c(0, ym), col = "grey", border = "darkgrey", main = "", xlab = "", xaxt = "none")
+    hist(b.l, breaks = bins, freq = F, xlim = c(0, 2*pi), ylim = c(0, ym), col = "grey", border = "darkgrey", main = "", xlab = "", xaxt = "none")
     axis(1, at = c(0, 0.5, 1, 1.5, 2) * pi,
          labels = c(0, expression(paste(pi, "/2")), expression(paste(pi)),
                     expression(paste("3", pi, "/2")), expression(paste("2", pi))))
