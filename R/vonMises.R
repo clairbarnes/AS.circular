@@ -14,6 +14,7 @@ vM.PP <- function(data, mu, kappa)  {
     
     plot.default(tdf, edf(data), pch=20, xlim=c(0,1), ylim=c(0,1), xlab = "von Mises distribution function", ylab = "Empirical distribution function")
     lines(c(0,1), c(0,1), lwd=2, col = "lightseagreen")
+    edf(data) - tdf
 }
 
 
@@ -32,6 +33,7 @@ vM.QQ <- function(data, mu, kappa)  {
     
     plot.default(tqf, data, pch=20, xlim=c(0,2*pi), ylim=c(0,2*pi), xlab = "von Mises quantile function", ylab = "Empirical quantile function")
     lines(c(0,2*pi), c(0,2*pi), lwd=2, col = "lightseagreen")
+    data - tqf
 }
 
 

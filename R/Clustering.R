@@ -322,6 +322,29 @@ EM.vonmises <- function(x, k, max.runs = 1000, conv = 0.00001) {
 }
 
 
+#' Classify points using EM mixture model
+#'
+#' Winner-takes-all classification of points based on a von Mises mixture model obtained using \code{\link{EM.vonmises}}.
+#' @param data Set of angular data
+#' @param model Fitted mixture model from \code{\link{EM.vonmises}}.
+#' @return Vector of cluster numbers
+#' @export
+#' @examples
+#' ex1 <- c(rvonmises(120 * 0.3, mu = circular(pi/2), kappa = 10),
+#'          rvonmises(120 * 0.7, mu = circular(pi), kappa = 3))
+#' em1 <- EM.vonmises(ex1, k = 2)
+#' cl <- EM.clusters(ex1, em1)
+#' plot(ex1[cl == 1], stack = T)
+#' points(ex1[cl == 2], col = "blue", stack = T)
+EM.clusters <- function(data, model) {
+    components <- matrix(nrow = model$k, ncol = length(data))
+    for (i in 1:model$k) {
+        components[i, ] <- dvonmises(data, circular(model$mu[i]), model$kappa[i])
+    }
+    apply(components, 2, which.max)
+}
+
+
 #' Plot mixture von Mises model found by EM algorithm.
 #'
 #' Plot original data with individual components and fitted mixture model.
