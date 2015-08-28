@@ -4,7 +4,7 @@
 \alias{plot.EM.vonmises}
 \title{Plot mixture von Mises model found by EM algorithm.}
 \usage{
-plot.EM.vonmises(varToPlot, modelToPlot)
+plot.EM.vonmises(varToPlot, modelToPlot, h.breaks = 20)
 }
 \arguments{
 \item{varToPlot}{Set of angular data}

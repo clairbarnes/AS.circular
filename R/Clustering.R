@@ -316,8 +316,8 @@ EM.vonmises <- function(x, k, max.runs = 1000, conv = 0.00001) {
              round(abs(log.lh - new.log.lh),6))
     } else {
         row.names(first.10) <- first.10[,1]
-        list(k = k, mu = mu, kappa = kappa, alpha = alpha,
-             log.lh = new.log.lh, iter = n, first.10 = round(first.10,2))
+        list(k = k, mu = mu %% (2*pi), kappa = kappa, alpha = alpha,
+             log.lh = new.log.lh)
     }
 }
 
@@ -333,7 +333,7 @@ EM.vonmises <- function(x, k, max.runs = 1000, conv = 0.00001) {
 #'          rvonmises(120 * 0.7, mu = circular(pi), kappa = 3))
 #' em1 <- EM.vonmises(ex1, k = 2)
 #' plot.EM.vonmises(ex1, em1)
-plot.EM.vonmises <- function(varToPlot, modelToPlot) {
+plot.EM.vonmises <- function(varToPlot, modelToPlot, h.breaks = 20) {
     
     varToPlot = matrix(varToPlot)       # convert from circular data
     
@@ -346,9 +346,9 @@ plot.EM.vonmises <- function(varToPlot, modelToPlot) {
     mixt <- colSums(components)
     
     # plot original data
-    y.max <- max(c(mixt, hist(varToPlot, plot = F, breaks = 20)$density)) * 1.1 # rescale y axis
+    y.max <- max(c(mixt, hist(varToPlot, plot = F, breaks = h.breaks)$density)) * 1.1 # rescale y axis
     labl <- paste("Mixture of", modelToPlot$k,"von Mises")
-    hist(varToPlot, freq = F, ylim = c(0, y.max), main = "", xlab = labl, xlim = c(0, 2*pi), breaks = 20)
+    hist(varToPlot, freq = F, ylim = c(0, y.max), main = "", col = "lightgrey", xlab = labl, xlim = c(0, 2*pi), breaks = h.breaks)
     
     # plot vM components
     for (i in 1:modelToPlot$k) {
@@ -357,4 +357,111 @@ plot.EM.vonmises <- function(varToPlot, modelToPlot) {
     
     # add mixture model
     lines(matrix(x), mixt, lwd = 2)
+}
+
+
+#' Estimate stabilising parameter p for mean-shift clustering of circular data
+#'
+#' Automation of graphical method of estimating stabilising parameter to be used in mean-shift clustering algorithms. Calculates correlation of kernel density estimate for successive values of p, selecting as the optimum the maximum value of p that is less than 1 when rounded to a certain degree of precision.
+#' @param data Set of angular data to be clustered.
+#' @param dp How many decimal places of convergence is required before p is accepted?
+#' @param plot Boolean: plot the correlation curve or not? Default is T.
+#' @return Suggested value of p to be used in mean-shift clustering functions such as \code{\link{MSclust.NB}}
+#' @export
+#' @examples
+#' ex1 <- c(rvonmises(120 * 0.3, mu = circular(pi/2), kappa = 10),
+#'          rvonmises(120 * 0.7, mu = circular(pi), kappa = 3))
+#' p <- MSclust.p.est(ex1, dp = 4)
+MSclust.p.est <- function(data, dp = 4, plot = T) {
+    
+    MSBC.kde <- function(theta, data, p, beta) {
+        
+        b <- (1 - cos(theta - data))
+        kf <- (1 - (b/beta))^p
+        kf[b > beta] <- 0
+        sum(kf)
+    }
+    
+    # get kde for all data points
+    beta <- sd.circular(data)
+    kde <- list()
+    for (j in 1:50) {
+        kde[[j]] <- sapply(data, FUN = MSBC.kde, data = data, p = j, beta = beta)
+    }
+    p.corr <- c()
+    for (j in 1:49) {
+        p.corr[j] <- cor(kde[[j]], kde[[j+1]])
+    }
+    
+    p <- length(p.corr[round(p.corr, dp) < 1])
+    plot(c(1:49), p.corr, pch = 20, type = "o", xlab = "p", ylab = "Correlation between kde with p & p+1")
+    abline(h = 1, col = "red")
+    abline(v = p, col = "red")
+    as.numeric(p)
+}
+
+
+#' Mean-shift clustering of circular data: non-blurring mean shift
+#'
+#' Iterative function to cluster angular data about an unspecified number of modes.
+#' @param data Set of angular data to be clustered.
+#' @param p Stabilising parameter p, estimated using \code{\link{MSclust.p.est}}.
+#' @param conv.lim Required degree of convergence: when the degree of correlation between successive iterations is closer to 1 than this, the data is deemed to have converged. Default is 0.00001.
+#' @return Matrix containing all iterations of the data set.
+#' @export
+#' @examples
+#' ex1 <- c(rvonmises(120 * 0.3, mu = circular(pi/2), kappa = 10),
+#'          rvonmises(120 * 0.7, mu = circular(pi), kappa = 3))
+#' p <- MSclust.p.est(ex1, dp = 4)
+#' nb <- MSclust.NB(ex1, p = 7, conv.lim = 0.000001)
+MSclust.NB <- function(data, p, conv.lim = 0.00001, max.runs = 20) {
+    n <- length(data)
+    beta <- sd.circular(data)
+    
+    # set all data ponts as initial values of cluster centres
+    vi <- matrix(data, nrow = 1)
+    conv <- c(0)
+    
+    t <- 1
+    while (conv[t] < (1-conv.lim) & t < max.runs) {
+        vi.new <- c()
+        for (i in 1:n) {
+            kd <- apply(cbind(beta - (1 - cos(vi[t,i]-data)),0),1,max)^(p-1)
+            upper <- kd * sin(data) / n
+            lower <- kd * cos(data) / n
+            vi.new[i] <- atan2(sum(upper), sum(lower)) %% (2*pi)
+        }
+        vi <- rbind(vi, t = vi.new)
+        conv[t+1] <- cor(vi[t,], vi[t+1,])
+        t <- t+1
+    }
+    vi
+}
+
+
+#' Summarise clusters from a mean-shift clustering
+#'
+#' Uses hierarchical clustering algorithm to extract mean, mean resultant length, and estimated kappa for each cluster.
+#' @param clusts Vector or matrix of clustered values, as produced by \code{\link{MSclust.NB}}.
+#' @return List containing a vector of cluster numbers and a matrix containing estimated mu, rho and kappa for each cluster.
+#' @export
+#' @examples
+#' ex1 <- c(rvonmises(120 * 0.3, mu = circular(pi/2), kappa = 10),
+#'          rvonmises(120 * 0.7, mu = circular(pi), kappa = 3))
+#' p <- MSclust.p.est(ex1, dp = 4)
+#' nb <- MSclust.NB(ex1, p = 7, conv.lim = 0.000001)
+#' res <- MSclust.summ(nb)
+MSclust.summ <- function(clusts, minPts = 5) {
+    
+    final <- clusts[nrow(clusts),]
+    
+    hcl <- hclust(dist(final), method = "single")
+    clusters <- as.data.frame(cbind(cluster = cutree(hcl, h = mean(hcl$height)),
+                                    org = clusts[1,], mode = final))
+    cts <- count(clusters$cluster)
+    res <- ddply(clusters, .(cluster), summarize,
+                 mu = mean.circular(circular(mode)) %% (2*pi),
+                 rho = rho.circular(circular(org)))
+    res <- cbind(res, kappa = A1inv(res[,3]), n.points = count(clusters$cluster)$freq)
+    list(summ = res, clusters = clusters$cluster)
 }
