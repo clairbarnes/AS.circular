@@ -4,7 +4,7 @@
 \alias{JP.pdf}
 \title{Jones-Pewsey probability density function}
 \usage{
-JP.pdf(theta, mu, kappa, psi)
+JP.pdf(theta, mu, kappa, psi, ncon)
 }
 \arguments{
 \item{theta}{Angle, in radians, at which the density is to be calculated. Can be either numeric or vector.}
@@ -22,6 +22,6 @@ The density function evaluated at \code{theta}: either a numeric or a vector, de
 Calculate the pdf of the Jones-Pewsey distribution at given points, based on specified values of \code{mu}, \code{kappa} and \code{psi}.
 }
 \examples{
-pdf <- JP.pdf(theta = c(k.2), mu = 3, kappa = 1, psi = -3)
+pdf <- JP.pdf(theta = c(k.2), mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
 }
 

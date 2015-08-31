@@ -383,6 +383,133 @@ plot.EM.vonmises <- function(varToPlot, modelToPlot, h.breaks = 20) {
 }
 
 
+#' Expectation-maximization algorithm for mixture of uniform and von Mises distributions
+#'
+#' For a vector of angles, will return the parameters of a mixture of von Mises distributions with one component constrained to be a continuous circular uniform distribution, using an EM algorithm.
+#' @param x Vector of angles to be fitted
+#' @param k Number of von Mises components to be fitted
+#' @param max.runs Maximum number of iterations to attempt. Default is 1000.
+#' @param conv Maximum difference in log-likelihood between successive iterations before convergence is considered to have occurred. Default is 0.00001.
+#' @return List containing k, with k estimates of mu, kappa, alpha (proportion of population belonging to each component), log-likelihood found, number of iterations required, and first 10 iterations. Can be passed to \code{\link{plot.EM.vonmises}} to be displayed graphically.
+#' @export
+#' @examples
+#' ex1 <- c(rvonmises(120 * 0.3, mu = circular(pi/2), kappa = 10),
+#'          rvonmises(120 * 0.7, mu = circular(pi), kappa = 3))
+#' em1 <- EM.vonmises(ex1, k = 2)
+EM.u.vonmises <- function(x, k, max.runs = 1000, conv = 0.00001) {
+    
+    # E-M algorithm with one component fixed as uniform
+    x <- circular(x)
+    # provide starting values for mu, kappa, alpha
+    mu <- circular(runif(k, 0, max(x)))
+    kappa <- c(0, runif(k-1,0,1))
+    alpha <- runif(k,0,1)
+    alpha <- alpha/sum(alpha) # normalise to sum to 1
+    
+    # Support function - calculate log-likelihood
+    
+    log.likelihood <- function(x, mu, kappa, alpha, k) {
+        l <- matrix(nrow = k, ncol = length(x))
+        for (i in 1:k) {
+            l[i,] <- alpha[i] * dvonmises(x, mu[i], kappa[i])
+        }
+        sum(log(colSums(l)))
+    }
+    
+    log.lh <- log.likelihood(x, mu, kappa, alpha, k)
+    new.log.lh <- abs(log.lh) + 100
+    n = 0
+    
+    # create array to store initial values
+    first.10 <- c(iter = n, mu = mu, kappa = kappa, alpha = alpha,
+                  log.lh = log.lh)
+    
+    while ((abs(log.lh - new.log.lh) > conv) && (n < max.runs)) {
+        
+        # Estimation - calculate z_ij
+        z <- matrix(0, ncol = length(x), nrow = k)
+        for (i in 1:k){
+            z[i,] <- alpha[i] * dvonmises(x, mu[i], kappa[i])
+        }
+        all.z <- colSums(z)
+        for (i in 1:k){
+            z[i,] <- z[i,] / all.z
+        }
+        
+        # Maximisation - update parameters
+        for (i in 1:k) {
+            alpha[i] <- sum(z[i,]) / length (x)
+            mu[i] <- atan2(sum(z[i,] * sin(x)), sum(z[i,] * cos(x)))
+            kappa[i] <- A1inv(sum(z[i,] * (cos(x - mu[i]))) / sum(z[i,]))   
+            
+            # correct for negative kappa if necessary
+            if (kappa[i] < 0) {
+                kappa[i] <- abs(kappa[i])
+                mu[i] <- mu[i] + pi
+            }
+            
+        }
+        
+        # Sort parameters by kappa for identifiability
+        alpha <- alpha[order(kappa)]
+        mu <- mu[order(kappa)]
+        z <- z[order(kappa),]
+        kappa <- kappa[order(kappa)]
+        # fix smallest kappa as 0 (uniform)
+        kappa[1] <- 0
+        
+        # calculate log-likelihoods for comparison
+        log.lh <- new.log.lh
+        new.log.lh <- log.likelihood(x, mu, kappa, alpha, k)
+        n <- n + 1
+        
+        # save first 10 iterations
+        if (n < 11) {
+            next.iter <- c(iter = n, mu = mu, kappa = kappa, alpha = alpha,
+                           log.lh = new.log.lh)
+            first.10 <- rbind(first.10, next.iter)
+        }
+    }
+    
+    # Output: if model hasn't converged, show error message
+    #         if it has, output the parameters & first 10 iterations
+    if ((abs(log.lh - new.log.lh) > conv)) {
+        cat ("Data hasn't converged after", n, "iterations; \n",
+             "Difference in log-likelihoods is", 
+             round(abs(log.lh - new.log.lh),6))
+    } else {
+        row.names(first.10) <- first.10[,1]
+        list(k = k, mu = mu %% (2*pi), kappa = kappa, alpha = alpha,
+             log.lh = new.log.lh)
+    }
+}
+
+
+#' Mixture von Mises P-P plot
+#'
+#' Produces a P-P plot of the data against a specified mixture of von Mises distribution, to graphically assess the goodness of fit of the model.
+#' @param data Vector of angles (in radians) to be fitted against the von Mises distribution.
+#' @param mu1 Mean direction parameter for first von Mises component
+#' @param kappa1 Concentration parameter for first von Mises component Must be between 0 and 1.
+#' @param mu2 Mean direction parameter for second von Mises component
+#' @param kappa2 Concentration parameter for second von Mises component Must be between 0 and 1.
+#' @param prop Proportion of distribution assigned to first von Mises component. Must be between 0 and 1.
+#' @return Vector of residuals.
+#' @export
+#' @examples
+#' r.mvm <- rmixedvonmises(200, circular(pi), circular(0), kap, 0, prop)
+#' m.pp.res <- mvM.PP(r.mvm, circular(pi),  kap, circular(0),0, prop)
+#' mean(m.pp.res); sd(m.pp.res)
+mvM.PP <- function(data, mu1, kappa1, mu2, kappa2, prop) {
+    edf <- ecdf(data)
+    tdf <- pmixedvonmises(data, mu1, mu2, kappa1, kappa2, prop, from = circular(0), tol = 1e-06)
+    plot.default(tdf, edf(data), pch = 20, xlim = c(0, 1), ylim = c(0, 1), xlab = "mixture von Mises distribution function", ylab = "Empirical distribution function")
+    lines(c(0, 1), c(0, 1), lwd = 2, col = "lightseagreen")
+    edf(data) - tdf
+}
+
+
+
 #' Estimate stabilising parameter p for mean-shift clustering of circular data
 #'
 #' Automation of graphical method of estimating stabilising parameter to be used in mean-shift clustering algorithms. Calculates correlation of kernel density estimate for successive values of p, selecting as the optimum the maximum value of p that is less than 1 when rounded to a certain degree of precision.
@@ -488,3 +615,5 @@ MSclust.summ <- function(clusts, minPts = 5) {
     res <- cbind(res, kappa = A1inv(res[,3]), n.points = count(clusters$cluster)$freq)
     list(summ = res, clusters = clusters$cluster)
 }
+
+

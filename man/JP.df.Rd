@@ -4,7 +4,7 @@
 \alias{JP.df}
 \title{Jones-Pewsey distribution function}
 \usage{
-JP.df(theta, mu, kappa, psi)
+JP.df(theta, mu, kappa, psi, ncon)
 }
 \arguments{
 \item{theta}{Angle, in radians, at which the distribution is to be calculated. Can be either numeric or vector.}
@@ -22,6 +22,6 @@ The distribution function evaluated at \code{theta}: either a numeric or a vecto
 Calculate the cdf of the Jones-Pewsey distribution at given points, based on specified values of \code{mu}, \code{kappa} and \code{psi}.
 }
 \examples{
-cdf <- JP.df(theta = c(k.2), mu = 3, kappa = 1, psi = -3)
+cdf <- JP.df(theta = c(k.2), mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
 }
 

@@ -4,7 +4,7 @@
 \alias{JP.sim}
 \title{Jones-Pewsey simulation function}
 \usage{
-JP.sim(n, mu, kappa, psi)
+JP.sim(n, mu, kappa, psi, ncon)
 }
 \arguments{
 \item{n}{Number of angles to be simulated from the distribution.}
@@ -22,6 +22,6 @@ A vector of n simulated angles from the specified distribution.
 Simulate a number of angles from the Jones-Pewsey distribution specified by \code{mu}, \code{kappa} and \code{psi}.
 }
 \examples{
-sample <- JP.sim(n = 100, mu = 3, kappa = 1, psi = -3)
+sample <- JP.sim(n = 100, mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
 }
 

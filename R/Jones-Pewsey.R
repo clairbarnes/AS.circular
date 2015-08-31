@@ -32,10 +32,9 @@ JP.NCon <- function(kappa, psi){
 #' @return The density function evaluated at \code{theta}: either a numeric or a vector, depending on the input.
 #' @export
 #' @examples
-#' pdf <- JP.pdf(theta = c(k.2), mu = 3, kappa = 1, psi = -3)
-JP.pdf <- function(theta, mu, kappa, psi){
+#' pdf <- JP.pdf(theta = c(k.2), mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
+JP.pdf <- function(theta, mu, kappa, psi, ncon){
     
-    ncon <- JP.NCon(kappa, psi)
     if (kappa < 0.001) {pdfval <- 1/(2*pi) ; return(pdfval)}
     else {
         eps <- 10*.Machine$double.eps
@@ -60,10 +59,9 @@ JP.pdf <- function(theta, mu, kappa, psi){
 #' @return The distribution function evaluated at \code{theta}: either a numeric or a vector, depending on the input.
 #' @export
 #' @examples
-#' cdf <- JP.df(theta = c(k.2), mu = 3, kappa = 1, psi = -3)
-JP.df <- function(theta, mu, kappa, psi) {
+#' cdf <- JP.df(theta = c(k.2), mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
+JP.df <- function(theta, mu, kappa, psi, ncon) {
     
-    ncon <- JP.NCon(kappa, psi)
     eps <- 10*.Machine$double.eps
     if (theta <= eps) {dfval <- 0 ; return(dfval)}
     
@@ -78,7 +76,7 @@ JP.df <- function(theta, mu, kappa, psi) {
         
         
         else { 
-            dfval <- integrate(JP.pdf, mu=mu, kappa=kappa, psi=psi, lower=0, upper=theta)$value
+            dfval <- integrate(JP.pdf, mu=mu, kappa=kappa, psi=psi, ncon = ncon, lower=0, upper=theta)$value
             return(dfval) }
     }
 }
@@ -94,10 +92,9 @@ JP.df <- function(theta, mu, kappa, psi) {
 #' @return The quantile function evaluated at \code{u}: either a numeric or a vector, depending on the input.
 #' @export
 #' @examples
-#' q <- JP.qf(u = 0.9, mu = 3, kappa = 1, psi = -3)
-JP.qf <- function(u, mu, kappa, psi) {
+#' q <- JP.qf(u = 0.9, mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
+JP.qf <- function(u, mu, kappa, psi, ncon) {
     
-    ncon <- JP.NCon(kappa, psi)
     eps <- 10*.Machine$double.eps
     if (u <= eps) {theta <- 0 ; return(theta)}
     
@@ -107,7 +104,7 @@ JP.qf <- function(u, mu, kappa, psi) {
     else {
         roottol <- .Machine$double.eps**(0.6)
         qzero <- function(x) {
-            y <- JP.df(x, mu, kappa, psi) - u ; return(y) }
+            y <- JP.df(x, mu, kappa, psi, ncon) - u ; return(y) }
         res <- uniroot(qzero, lower=0, upper=2*pi-eps, tol=roottol)
         theta <- res$root ; return(theta) }
 }
@@ -123,15 +120,15 @@ JP.qf <- function(u, mu, kappa, psi) {
 #' @return A vector of n simulated angles from the specified distribution.
 #' @export
 #' @examples
-#' sample <- JP.sim(n = 100, mu = 3, kappa = 1, psi = -3)
-JP.sim <- function(n, mu, kappa, psi) {
+#' sample <- JP.sim(n = 100, mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
+JP.sim <- function(n, mu, kappa, psi, ncon) {
     
-    fmax <- JP.pdf(mu, mu, kappa, psi) ; theta <- 0
+    fmax <- JP.pdf(mu, mu, kappa, psi, ncon) ; theta <- 0
     for (j in 1:n) {
         stopgo <- 0
         while (stopgo == 0) {
             u1 <- runif(1, 0, 2*pi)
-            pdfu1 <- JP.pdf(u1, mu, kappa, psi)
+            pdfu1 <- JP.pdf(u1, mu, kappa, psi, ncon)
             u2 <- runif(1, 0, fmax)
             if (u2 <= pdfu1) { theta[j] <- u1 ; stopgo <- 1 }
         } }
@@ -164,7 +161,7 @@ JP.mle <- function(data) {
             return(y)
         } else {
             ncon <- JP.NCon(kappa, psi)
-            y <- -sum(log(JP.pdf(data, mu, kappa, psi)))
+            y <- -sum(log(JP.pdf(data, mu, kappa, psi, ncon)))
             return (y)
         }
     }
@@ -218,15 +215,17 @@ JP.ci.boot <- function(data, alpha = 0.05, B = 9999, show.progress = T) {
     mu.est <- JPmleRes$mu
     kappa.est <- JPmleRes$kappa
     psi.est <- JPmleRes$psi
+    ncon.est <- JP.NCon(kappa.est, psi.est)
     
     # resample from distribution & get B parameter estimates
     if (show.progress) {pb <- txtProgressBar(min = 0, max = B, style = 3)}
     for (b in 2:(B+1)) {
-        sample <- JP.sim(n, mu.est[1], kappa.est[1], psi.est[1])
+        sample <- JP.sim(n, mu.est[1], kappa.est[1], psi.est[1], ncon.est[1])
         JPmleRes <- JP.mle(sample) 
         mu.est[b] <- JPmleRes$mu
         kappa.est[b] <- JPmleRes$kappa
         psi.est[b] <- JPmleRes$psi
+        ncon.est[b] <- JP.NCon(kappa.est[b], psi.est[b])
         if (show.progress) {setTxtProgressBar(pb, b)}
     }
     dist <- pi-abs(pi-abs(mu.est-mu.est[1]))
@@ -263,10 +262,11 @@ JP.ci.boot <- function(data, alpha = 0.05, B = 9999, show.progress = T) {
 #' @examples
 #' JP.PP(k.2, mu = 3, kappa = 1, psi = -3)
 JP.PP <- function(data, mu, kappa, psi) {
+    ncon <- JP.NCon(kappa, psi)
     n <- length(data)
     edf <- ecdf(data) 
     tdf <- 0 
-    for (j in 1:n) {tdf[j] <- JP.df(data[j], mu, kappa, psi)}
+    for (j in 1:n) {tdf[j] <- JP.df(data[j], mu, kappa, psi, ncon)}
     
     plot.default(tdf, edf(data), pch=20, xlim=c(0,1), ylim=c(0,1),
                  xlab = "Jones-Pewsey distribution function", ylab = "Empirical distribution function")
@@ -286,10 +286,11 @@ JP.PP <- function(data, mu, kappa, psi) {
 #' @examples
 #' JP.QQ(k.2, mu = 3, kappa = 1, psi = -3)
 JP.QQ <- function(data, mu, kappa, psi) {
+    ncon <- JP.NCon(kappa, psi)
     n <- length(data)
     edf <- ecdf(data) 
     tqf <- 0 
-    for (j in 1:n) {tqf[j] <- JP.qf(edf(data)[j], mu, kappa, psi)}
+    for (j in 1:n) {tqf[j] <- JP.qf(edf(data)[j], mu, kappa, psi, ncon)}
     
     plot.default(tqf, data, pch=20, xlim=c(0,2*pi), ylim=c(0,2*pi), xlab = "Jones-Pewsey quantile function", ylab = "Empirical quantile function") 
     lines(c(0,2*pi), c(0,2*pi), lwd=2, col = "lightseagreen")
@@ -317,8 +318,9 @@ JP.QQ <- function(data, mu, kappa, psi) {
 JP.GoF <- function(data, mu, kappa, psi, display = T) {
     n <- length(data)
     tdf <- 0
+    ncon <- JP.NCon(kappa, psi)
     
-    for (j in 1:n) {tdf[j] <- JP.df(data[j], mu, kappa, psi)}
+    for (j in 1:n) {tdf[j] <- JP.df(data[j], mu, kappa, psi, ncon)}
     cunif <- circular(2*pi*tdf)
     
     if (display) {
@@ -354,10 +356,11 @@ JP.GoF.boot <- function(data, B = 9999, show.progress = T) {
     muhat0 <- JPmleRes$mu
     kaphat0 <- JPmleRes$kappa
     psihat0 <- JPmleRes$psi
+    ncon0 <- JP.NCon(kaphat0, psihat0)
     
     tdf <- 0 
     for (j in 1:n) {
-        tdf[j] <- JP.df(data[j], muhat0, kaphat0, psihat0)
+        tdf[j] <- JP.df(data[j], muhat0, kaphat0, psihat0, ncon0)
     }
     
     cunif <- circular(2*pi*tdf)
@@ -370,14 +373,15 @@ JP.GoF.boot <- function(data, B = 9999, show.progress = T) {
     
     if (show.progress) {pb <- txtProgressBar(min = 0, max = B, style = 3)}
     for (b in 2:(B+1)) {
-        bootstrap.sample <- JP.sim(n, muhat0, kaphat0, psihat0)
+        bootstrap.sample <- JP.sim(n, muhat0, kaphat0, psihat0, ncon0)
         JPmleRes <- JP.mle(bootstrap.sample) 
         muhat1 <- JPmleRes$mu
         kaphat1 <- JPmleRes$kappa
         psihat1 <- JPmleRes$psi
+        ncon1 <- JP.NCon(kaphat1, psihat1)
         tdf <- 0
         for (j in 1:n) {
-            tdf[j] <- JP.df(bootstrap.sample[j], muhat1, kaphat1, psihat1)
+            tdf[j] <- JP.df(bootstrap.sample[j], muhat1, kaphat1, psihat1, ncon1)
         }
         cunif <- circular(2*pi*tdf)
         
@@ -426,7 +430,8 @@ JP.psi.LR.test <- function(data, psi.0 = 0, alpha = 0.05) {
         parlim <- abs(kappa*psi)
         if (parlim > 10) {y <- 9999.0 ; return(y)}
         else {
-            y <- -sum(log(JP.pdf(data, mu, kappa, psi)))
+            ncon <- JP.NCon(kappa, psi)
+            y <- -sum(log(JP.pdf(data, mu, kappa, psi, ncon)))
             return (y)
         }
     }
@@ -438,7 +443,8 @@ JP.psi.LR.test <- function(data, psi.0 = 0, alpha = 0.05) {
         parlim <- abs(kappa*psi)
         if (parlim > 10) {y <- 9999.0 ; return(y)} 
         else {
-            y <- -sum(log(JP.pdf(data, mu, kappa, psi))) 
+            ncon <- JP.NCon(kappa, psi)
+            y <- -sum(log(JP.pdf(data, mu, kappa, psi, ncon))) 
             return(y) 
         }
     }
@@ -501,7 +507,8 @@ JP.psi.LR.boot <- function(data, psi.0 = 0, B = 9999, alpha = 0.05, show.progres
         parlim <- abs(kappa*psi)
         if (parlim > 10) {y <- 9999.0 ; return(y)}
         else {
-            y <- -sum(log(JP.pdf(x, mu, kappa, psi))) ; return (y) 
+            ncon <- JP.NCon(kappa, psi)
+            y <- -sum(log(JP.pdf(x, mu, kappa, psi, ncon))) ; return (y) 
         }
     }
     
@@ -512,7 +519,9 @@ JP.psi.LR.boot <- function(data, psi.0 = 0, B = 9999, alpha = 0.05, show.progres
         parlim <- abs(kappa*psi)
         if (parlim > 10) {y <- 9999.0 ; return(y)} 
         else {
-            y <- -sum(log(JP.pdf(x, mu, kappa, psi))) ; return(y) }
+            ncon <- JP.NCon(kappa, psi)
+            y <- -sum(log(JP.pdf(x, mu, kappa, psi, ncon))) ; return(y)
+        }
     }
     
     out <- optim(par=c(mu.vM, kappa.vM, 0), fn=JPnll.psi, gr = NULL, method = "L-BFGS-B", lower = c(mu.vM-pi, 0, -Inf), upper = c(mu.vM+pi, Inf, Inf))
@@ -607,7 +616,8 @@ JP.psi.info <- function(data, psi.0 = 0) {
         parlim <- abs(kappa*psi)
         if (parlim > 10) {y <- 9999.0 ; return(y)}
         else {
-            y <- -sum(log(JP.pdf(x, mu, kappa, psi))) 
+            ncon <- JP.NCon(kappa, psi)
+            y <- -sum(log(JP.pdf(x, mu, kappa, psi, ncon))) 
             return (y)
         }
     }
@@ -619,7 +629,8 @@ JP.psi.info <- function(data, psi.0 = 0) {
         parlim <- abs(kappa*psi)
         if (parlim > 10) {y <- 9999.0 ; return(y)} 
         else {
-            y <- -sum(log(JP.pdf(x, mu, kappa, psi))) 
+            ncon <- JP.NCon(kappa, psi)
+            y <- -sum(log(JP.pdf(x, mu, kappa, psi, ncon))) 
             return(y)
         }
     }
@@ -652,6 +663,7 @@ JP.psi.info <- function(data, psi.0 = 0) {
     comparison <- round(rbind(mu = c(mu.vM, muhat1),
                               kappa = c(kappa.vM, kaphat1),
                               psi = c(psi.0, psihat1),
+                              llh = c(maxll0, maxll1),
                               AIC = c(AIC0, AIC1),
                               BIC = c(BIC0, BIC1),
                               AICc = c(AIC0, AIC1) + (2*k*(k+1)) / (n-k-1)),3)

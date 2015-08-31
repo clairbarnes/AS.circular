@@ -4,7 +4,7 @@
 \alias{JP.qf}
 \title{Jones-Pewsey quantile function}
 \usage{
-JP.qf(u, mu, kappa, psi)
+JP.qf(u, mu, kappa, psi, ncon)
 }
 \arguments{
 \item{u}{Quantile to be evaluated.}
@@ -22,6 +22,6 @@ The quantile function evaluated at \code{u}: either a numeric or a vector, depen
 Evaluate the quartile of the Jones-Pewsey distribution at given points, based on specified values of \code{mu}, \code{kappa} and \code{psi}.
 }
 \examples{
-q <- JP.qf(u = 0.9, mu = 3, kappa = 1, psi = -3)
+q <- JP.qf(u = 0.9, mu = 3, kappa = 1, psi = -3, JP.NCon(kappa = 1, psi = -3))
 }
 
