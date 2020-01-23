@@ -11,7 +11,7 @@ JP.psi.LR.test(data, psi.0 = 0, alpha = 0.05)
 
 \item{psi.0}{Value of \code{psi} specifying a simpler model, to test against the three-parameter Jones-Pewsey.}
 
-\item{alpha}{Significance level of likelihood ratio test. Default is 0.05 (95% confidence interval).}
+\item{alpha}{Significance level of likelihood ratio test. Default is 0.05 (95\% confidence interval).}
 }
 \value{
 List containing the deviance, p-value, matrix ofthe parameters tested, and a comment explaining the output.

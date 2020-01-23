@@ -61,7 +61,7 @@ bc.sample.statistics <- function(data, symmetric = F) {
 #'
 #' Obtain the main circular sample statistics of the distribution, with large-sample normal-theory confidence intervals.
 #' @param data Vector of angles.
-#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).
 #' @param symmetric Boolean indicating whether or not the data is assumed to be symmetric.
 #' @return A list containing estimates of mu (location), rho (concentration), beta2 (skew) and alpha2 (kurtosis), and the upper and lower bounds of the confidence intervals calculated.
 #' @export
@@ -121,7 +121,7 @@ bc.ci.LS <- function(data, alpha = 0.05, symmetric = F) {
 #'
 #' Obtain the main circular sample statistics of the distribution, with large-sample normal-theory confidence intervals.
 #' @param data Vector of angles.
-#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).
 #' @param symmetric Boolean indicating whether or not the data is assumed to be symmetric.
 #' @param B Number of bootstrap samples to use to estimate the confidence intervals. Default is 9999.
 #' @param show.progress Boolean indicating whether or not to display a progress bar as the bootstrap is run.
@@ -223,7 +223,7 @@ bc.ci.boot <- function(data, symmetric = F, alpha = 0.05, B = 9999, show.progres
 #'
 #' Large-sample asymptotic-theory test of reflective symmetry about an unspecified mean.
 #' @param data Vector of angles.
-#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).
 #' @param symmetric Boolean indicating whether or not the data is assumed to be symmetric.
 #' @return A list containing the test statistic and p-value of the test.
 #' @seealso \code{\link{wilcox.test}} for a rank test of reflective symmetry about a specified direction.

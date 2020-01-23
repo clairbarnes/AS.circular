@@ -11,7 +11,7 @@ bc.ci.boot(data, symmetric = F, alpha = 0.05, B = 9999, show.progress = T)
 
 \item{symmetric}{Boolean indicating whether or not the data is assumed to be symmetric.}
 
-\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).}
+\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).}
 
 \item{B}{Number of bootstrap samples to use to estimate the confidence intervals. Default is 9999.}
 

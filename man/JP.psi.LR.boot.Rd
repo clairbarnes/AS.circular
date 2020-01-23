@@ -13,7 +13,7 @@ JP.psi.LR.boot(data, psi.0 = 0, B = 9999, alpha = 0.05, show.progress = T)
 
 \item{B}{Number of bootstrap samples to use to obtain the confidence interval. Default is 9999.}
 
-\item{alpha}{Significance level of likelihood ratio test. Default is 0.05 (95% confidence interval).}
+\item{alpha}{Significance level of likelihood ratio test. Default is 0.05 (95\% confidence interval).}
 }
 \value{
 List containing the deviance, p-value, matrix ofthe parameters tested, and a comment explaining the output.

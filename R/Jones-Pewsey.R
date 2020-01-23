@@ -181,7 +181,7 @@ JP.mle <- function(data) {
 #'
 #' Obtain nominal 100(1-\code{alpha})% confidence intervals for Jones-Pewsey estimators, by solving the Hessian matrix produced by \code{JP.mle}.
 #' @param jp.ests List (as output by \code{JP.mle}) containing named estimates of \code{mu}, \code{kappa} and \code{psi}, and the Hessian matrix \code{HessMat} of the optimised parameters.
-#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).
 #' @return A list containing estimates of \code{mu}, \code{kappa} and \code{psi}, and the upper and lower bounds of the confidence intervals calculated.
 #' @export
 #' @examples
@@ -202,7 +202,7 @@ JP.ci.nt <- function(jp.ests, alpha = 0.05) {
 #'
 #' Obtain nominal 100(1-\code{alpha})% confidence intervals for Jones-Pewsey estimators, using a bootstrap resampling method.
 #' @param data Vector of angles over which maximum likelihood estimation is to be performed.
-#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).
 #' @param B Number of bootstrap samples to use to obtain the confidence interval. Default is 9999.
 #' @param show.progress Boolean indicating whether or not to display a progress bar as the bootstrap is run.
 #' @return A list containing estimates of \code{mu}, \code{kappa} and \code{psi}, and the upper and lower bounds of the confidence intervals calculated.
@@ -405,7 +405,7 @@ JP.GoF.boot <- function(data, B = 9999, show.progress = T) {
 #' Likelihood ratio test of Jones-Pewsey distribution with MLE parameters against a simpler model with a specified value of \code{psi}.
 #' @param data Vector of angles to be tested.
 #' @param psi.0 Value of \code{psi} specifying a simpler model, to test against the three-parameter Jones-Pewsey.
-#' @param alpha Significance level of likelihood ratio test. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of likelihood ratio test. Default is 0.05 (95\% confidence interval).
 #' @details von Mises has psi -> 0; cardioid has psi = 1; wrapped Cauchy has psi = -1.
 #' @return List containing the deviance, p-value, matrix ofthe parameters tested, and a comment explaining the output.
 #' @export
@@ -485,7 +485,7 @@ JP.psi.LR.test <- function(data, psi.0 = 0, alpha = 0.05) {
 #' Bootstrap likelihood ratio test of Jones-Pewsey distribution with MLE parameters against a simpler model with a specified value of \code{psi}.
 #' @param data Vector of angles to be tested.
 #' @param psi.0 Value of \code{psi} specifying a simpler model, to test against the three-parameter Jones-Pewsey.
-#' @param alpha Significance level of likelihood ratio test. Default is 0.05 (95% confidence interval).
+#' @param alpha Significance level of likelihood ratio test. Default is 0.05 (95\% confidence interval).
 #' @param B Number of bootstrap samples to use to obtain the confidence interval. Default is 9999.
 #' @details von Mises has psi -> 0; cardioid has psi = 1; wrapped Cauchy has psi = -1.
 #' @return List containing the deviance, p-value, matrix ofthe parameters tested, and a comment explaining the output.

@@ -9,7 +9,7 @@ JP.ci.nt(jp.ests, alpha = 0.05)
 \arguments{
 \item{jp.ests}{List (as output by \code{JP.mle}) containing named estimates of \code{mu}, \code{kappa} and \code{psi}, and the Hessian matrix \code{HessMat} of the optimised parameters.}
 
-\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).}
+\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).}
 }
 \value{
 A list containing estimates of \code{mu}, \code{kappa} and \code{psi}, and the upper and lower bounds of the confidence intervals calculated.

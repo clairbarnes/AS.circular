@@ -9,7 +9,7 @@ JP.ci.boot(data, alpha = 0.05, B = 9999, show.progress = T)
 \arguments{
 \item{data}{Vector of angles over which maximum likelihood estimation is to be performed.}
 
-\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95% confidence interval).}
+\item{alpha}{Significance level of confidence interval to be obtained. Default is 0.05 (95\% confidence interval).}
 
 \item{B}{Number of bootstrap samples to use to obtain the confidence interval. Default is 9999.}
 
