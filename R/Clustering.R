@@ -616,4 +616,3 @@ MSclust.summ <- function(clusts, minPts = 5) {
     list(summ = res, clusters = clusters$cluster)
 }
 
-

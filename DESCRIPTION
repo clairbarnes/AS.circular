@@ -1,8 +1,13 @@
 Package: AS.circular
 Title: ArchStats: circular functions
 Version: 0.0.0.9000
-Authors@R: person("Clair", "Barnes", email = "clair.with.no.e@gmail.com", role = c("aut", "cre"))
+Authors@R: 
+    person(given = "Clair",
+           family = "Barnes",
+           role = c("aut", "cre"), 
+	   email = "clair.with.no.e@gmail.com")
 Description: Circular functions based on 'Circular Statistics in R' by Pewsey et al
 Depends: circular, shape
-License: What license is it under?
+Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.0.2

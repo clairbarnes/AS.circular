@@ -129,7 +129,7 @@ watson.mean.test.boot <- function(samples, B = 9999, show.progress = T) {
     sample.sizes <- c()
     g.id <- c()
     for (i in 1:g) {sample.sizes[i] <- length(samples[[i]])
-                    g.id <- c(g.id, rep(i, sample.sizes[i]))}
+    g.id <- c(g.id, rep(i, sample.sizes[i]))}
     
     
     delhat <- c() 

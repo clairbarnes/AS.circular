@@ -73,7 +73,7 @@ bc.ci.LS <- function(data, alpha = 0.05, symmetric = F) {
     ests <- bc.sample.statistics(data, symmetric = symmetric)
     
     bar <- get.moments(data)
-
+    
     r2 <- bar$r^2 ; r4 <- r2^2
     
     qval <- qnorm(1-alpha/2)
@@ -310,7 +310,7 @@ uniformity.tests <- function(data, display = T) {
 #' @examples
 #' uniformity.plot(q)
 uniformity.plot <- function(data, extend = F) {
-
+    
     data <- data %% (2 * pi)
     n <- length(data)
     
@@ -318,16 +318,16 @@ uniformity.plot <- function(data, extend = F) {
     y <- sort(data) / (2 * pi)
     
     if (extend) {
-            f <- floor(n/5)
-            x.end <- x[1:f] + 1
-            y.end <- y[1:f] + 1
-            
-            x.start <- x[(n - f):n] - 1
-            y.start <- y[(n - f):n] - 1
-            
-            x <- c(x.start, x, x.end)
-            y <- c(y.start, y, y.end)
-        } 
+        f <- floor(n/5)
+        x.end <- x[1:f] + 1
+        y.end <- y[1:f] + 1
+        
+        x.start <- x[(n - f):n] - 1
+        y.start <- y[(n - f):n] - 1
+        
+        x <- c(x.start, x, x.end)
+        y <- c(y.start, y, y.end)
+    } 
     
     plot(x, y, pch = 20, asp = T, xlab = "Uniform quantiles", ylab = "Sample quantiles")
     abline(a = 0, b = 1, col = "lightseagreen")
@@ -420,5 +420,3 @@ circular.c.plot <- function(data, bins = 90, BW = 15, l.pos, l.size = 1, p.sep =
                lwd = 2)
     }
 }
-
-

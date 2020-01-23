@@ -1,3 +1,4 @@
+
 #' Jones-Pewsey normalising constant
 #'
 #' Support function to calculate the normalising constant for the Jones-Pewsey distribution, based on specified values of \code{kappa} and \code{psi}.
